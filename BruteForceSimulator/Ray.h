@@ -34,5 +34,11 @@ public:
 			return true;
 		else return false;
 	}
+	void Print()
+	{
+		printf("\n direction:");
+		direction.Print();
+		stokes.Print();
+	}
 };
 

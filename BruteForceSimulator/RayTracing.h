@@ -7,6 +7,8 @@
 #include <iostream>
 #define PrintTraceInfo false
 //#define PrintTraceInfo true
+#define DebugMode false
+#define TestNormal Normalize(Vector(1,-1,19))
 
 using namespace std;
 
@@ -24,7 +26,7 @@ private:
 	unsigned int BounceLimit;
 	unsigned int bounceNum;
 	bool multiRelflectionHappen;
-
+	void PrintStatus();
 	
 
 	void getRefractionAttenuation(

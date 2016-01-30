@@ -1,4 +1,5 @@
 #pragma once
+#include <stdio.h>
 #include <math.h>
 #include <float.h>
 #define M_PI 3.1415926
@@ -10,7 +11,11 @@ public:
 	Vector(float xx, float yy, float zz)
 		: x(xx), y(yy), z(zz) {
 			
-	}	 
+	}
+	void Print()
+	{
+		printf("\n x %f y %f z %f \n", x,y,z);
+	}
 
 	// The default versions of these are fine for release builds; for debug
 	// we define them so that we can add the Assert checks.

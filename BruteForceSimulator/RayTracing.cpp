@@ -18,6 +18,14 @@ RayTracing::~RayTracing(void)
 {
 }
 
+void RayTracing::PrintStatus()
+{
+	printf("Current Layer %d",currentLayer);
+	currentOutgoingDirection.Print();
+	currentStokes.Print();
+	printf(" \n ");
+}
+
 void RayTracing::InitializeAndCompute(
 			const Vector IncidenceDirection,
 			const StokesVector   incidentceStokes,
@@ -58,6 +66,8 @@ void RayTracing::InitializeAndCompute(
 	{
 		outgoingDirection = currentOutgoingDirection;
 		sv = currentStokes;
+		if(DebugMode)
+			PrintStatus();
 	}
 	else
 	{
@@ -102,6 +112,8 @@ void RayTracing::TraceRayDownwards()
 
 	Vector SampledLocalNormal;
 	SampledLocalNormal = SampleAnisotropicNormal(layerNumOfTracedRay+1);
+	if(DebugMode)
+		SampledLocalNormal = TestNormal;
 
 	double localTheta=acos(abs(Dot(
 		currentIncomingDirection,
@@ -159,6 +171,9 @@ void RayTracing::TraceRayDownwards()
 			attenuation);
 		currentStokes = attenuation * currentStokes ;
 
+		if(DebugMode)
+			PrintStatus();
+		
 		if ( isNormalRefraction(currentIncomingDirection,currentOutgoingDirection))
 		{
 			currentIncomingDirection = currentOutgoingDirection;
@@ -181,6 +196,9 @@ void RayTracing::TraceRayDownwards()
 			currentOutgoingDirection,
 			attenuation);
 		currentStokes = attenuation * currentStokes ;
+
+		if(DebugMode)
+			PrintStatus();
 
 		if ( isNormalReflection(currentIncomingDirection,currentOutgoingDirection))
 		{
@@ -228,6 +246,8 @@ void RayTracing::TraceRayUpwards()
 
 	Vector SampledLocalNormal;
 	SampledLocalNormal = SampleAnisotropicNormal(layerNumOfTracedRay); // ??
+	if(DebugMode)
+		SampledLocalNormal = TestNormal;
 
 	double localTheta=acos(abs(Dot(
 		currentIncomingDirection,
