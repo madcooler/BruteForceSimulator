@@ -10,6 +10,9 @@
 #define DebugMode false
 #define TestNormal Normalize(Vector(1,-1,19))
 
+#define Upwards   1
+#define Downwards 0
+
 using namespace std;
 
 class RayTracing
@@ -28,7 +31,7 @@ private:
 	bool multiRelflectionHappen;
 	void PrintStatus();
 	
-
+	void SamplerNormalDirection(int lightDirectionStatus,int intersectionLayerNum,Vector & sampledLocalNormal);
 	void getRefractionAttenuation(
 		const Vector    incomingDirecion,
 		const Vector    localNormal,
@@ -49,9 +52,31 @@ private:
 		Vector  & outgoingDirecion,
 		Mueller & mu
 		);
+	void ChooseReflectionOrRefraction(
+		const double    localtheta,
+		const double    n_i,
+		const double    k_i,
+		const double    n_t,
+		const double    k_t,
+		const int       lightDirectionStatus,
+			  bool    & doReflection
+			  );
+	void DoReflectionOrNot(
+		const double    localTheta,
+		const double    n_i,
+		const double    k_i,
+		const double    n_t,
+		const double    k_t,
+		const int       lightDirectionStatus,
+		const int       intersectionLayer,
+			  bool    & doReflection
+		);
 	void setFresnelMueller(Mueller &mu,double A,double B,double C,double S);
 	void TraceRayUpwards();
 	void TraceRayDownwards();
+	void TraceRay();
+	
+	int GetIntersetcionLayer(int currentL,int lightDirectionStatus);
 	Vector SampleAnisotropicNormal(int layer);
 public:
 	RayTracing(void);

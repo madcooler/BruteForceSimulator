@@ -54,10 +54,11 @@ void RayTracing::InitializeAndCompute(
 	Ex = EX;
 	Ey = EY;
 
-	NumOfLayer = Ex.size() ;
-	BounceLimit				 = NumOfLayer * 4;
+	NumOfLayer  = Ex.size() ;
+	BounceLimit = NumOfLayer * 4;
 
-	TraceRayDownwards();
+	//TraceRayDownwards();
+	TraceRay();
 
 	if(PrintTraceInfo == true)
 		printf("\n");
@@ -81,6 +82,182 @@ void RayTracing::InitializeAndCompute(
 		}
 	}
 }
+
+int RayTracing::GetIntersetcionLayer(int currentL,int lightDirectionStatus)
+{
+	if ( lightDirectionStatus == Upwards )
+	{
+		return currentL - 1;
+	}
+	if ( lightDirectionStatus == Downwards )
+	{
+		return currentL +1;
+	}
+
+}
+
+void RayTracing::TraceRay()
+{
+	if(PrintTraceInfo == true)
+		printf(" %d ", currentLayer);
+
+	if( currentLayer == 0  && currentOutgoingDirection.z > 0 )
+		return;
+
+	if( bounceNum == BounceLimit)
+		return;
+
+	if( bounceNum < BounceLimit )
+		bounceNum++;
+
+	int layerNumOfTracedRay     = currentLayer;
+	int lightDirectionStauts    = ( currentIncomingDirection.z > 0 ) ? Upwards: Downwards ;
+	int intersectionLayerNumber = GetIntersetcionLayer( layerNumOfTracedRay,lightDirectionStauts );
+
+	double n_i,n_t,k_i,k_t;
+	n_i = N[layerNumOfTracedRay];
+	k_i = K[layerNumOfTracedRay];
+	n_t = N[intersectionLayerNumber];
+	k_t = K[intersectionLayerNumber];
+
+	Vector SampledLocalNormal;
+	SamplerNormalDirection(lightDirectionStauts,intersectionLayerNumber,SampledLocalNormal);
+
+	double localTheta=acos(abs(Dot(
+		currentIncomingDirection,
+		SampledLocalNormal)));
+	bool doReflection = false;
+
+	DoReflectionOrNot(
+		localTheta,
+		n_i,
+		k_i,
+		n_t,
+		k_t,
+		lightDirectionStauts,
+		intersectionLayerNumber,
+		doReflection);
+
+	Mueller attenuation;
+	if ( doReflection == true)
+	{
+		getReflectionAttenuation(currentIncomingDirection,
+			SampledLocalNormal,
+			n_i,
+			k_i,
+			n_t,
+			k_t,
+			currentOutgoingDirection,
+			attenuation);
+		currentStokes = attenuation * currentStokes ;
+
+		if(DebugMode)
+			PrintStatus();
+
+		if ( isNormalReflection(currentIncomingDirection,currentOutgoingDirection))
+		{
+			currentIncomingDirection = currentOutgoingDirection;
+			TraceRay();
+		} 
+		else
+		{
+			multiRelflectionHappen = true;
+			return;
+		}
+	}
+	else
+	{
+		getRefractionAttenuation(currentIncomingDirection,
+			SampledLocalNormal,
+			n_i,
+			k_i,
+			n_t,
+			k_t,
+			currentOutgoingDirection,
+			attenuation);
+		currentStokes = attenuation * currentStokes ;
+
+		if(DebugMode)
+			PrintStatus();
+
+		if ( isNormalRefraction(currentIncomingDirection,currentOutgoingDirection))
+		{
+			currentIncomingDirection = currentOutgoingDirection;
+			TraceRay();
+		} 
+		else
+		{
+			multiRelflectionHappen = true;
+			return;
+		}
+	}
+}
+
+void RayTracing::SamplerNormalDirection(int lightDirectionStatus,int intersectionLayerNum,Vector & sampledLocalNormal)
+{
+	int index = intersectionLayerNum;
+	if (lightDirectionStatus == Upwards)
+		index = index + 1;
+
+	sampledLocalNormal = SampleAnisotropicNormal( index );
+	if(DebugMode)
+		sampledLocalNormal = TestNormal;
+}
+
+void RayTracing::DoReflectionOrNot( 
+	const double    localTheta,
+	const double    n_i,
+	const double    k_i,
+	const double    n_t,
+	const double    k_t,
+	const int       lightDirectionStatus,
+	const int       intersectionLayer,
+	      bool    & doReflection)
+{
+	double Reflectance=0,Transmittance=0;
+	double Ts,Tp,TsTp,Tphase,Tfactor;
+	double rs,rp,phaseS,phaseP,Fs,Fp;
+
+	Reflectance = Fresnel_Reflection( localTheta, 
+		n_i,
+		k_i,
+		n_t,
+		k_t,
+		rs,
+		rp,
+		phaseS,
+		phaseP,
+		Fs,
+		Fp);
+	bool refractAtLastLayer = ( intersectionLayer == NumOfLayer ) && ( lightDirectionStatus == Downwards );
+
+	if (k_t==0 && !refractAtLastLayer)  // next layer is not metallic or opaque AND there is not transimission at the last layer
+	{
+		Transmittance = Fresnel_Refraction(
+			localTheta,
+			n_i,
+			k_i,
+			n_t,
+			k_t,
+			Tphase,
+			Ts,
+			Tp,
+			TsTp,
+			Tfactor
+			);
+		if(isnan(Transmittance))   //Total Internal Refelection
+			Transmittance = 0;
+	}
+	else Transmittance=0;
+
+	double NomalizedReflectProbility=Reflectance/(Reflectance+Transmittance);
+	double NomalizedTransmitProbility=1-NomalizedReflectProbility;
+
+	double randomNum= rand()/(double)RAND_MAX;
+
+	doReflection = ( randomNum < NomalizedTransmitProbility )? false : true;	
+}
+
 
 void RayTracing::TraceRayDownwards()
 {
