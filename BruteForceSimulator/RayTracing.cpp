@@ -566,30 +566,39 @@ void RayTracing::getRefractionAttenuation(
 		);
 
 	double A,B,C,S;
-	A=Tfactor*(Ts+Tp)/2;
-	B=Tfactor*(Ts-Tp)/2;
-	C=Tfactor*TsTp;
-	S=Tfactor*0;
+	A = Tfactor * ( Ts + Tp )/2;
+	B = 0;
+	C = 0;
+	S = 0;
+	
 
-	double localToglobal_angle;
-	double globalTolocal_angle;
+	if ( Polarised == true )
+	{
+		B = Tfactor * ( Ts - Tp )/2;
+		C = Tfactor * TsTp;
+		S = Tfactor * 0;
 
-	rotationAngle(
-		incomingDirecion,
-		outgoingDirecion,
-		surfaceNormal,
-		localNormal,
-		globalTolocal_angle,
-		localToglobal_angle
-		);
+		double localToglobal_angle;
+		double globalTolocal_angle;
 
-	JonesMat R1=Jones_Rotator(globalTolocal_angle),R2=Jones_Rotator(localToglobal_angle);
+		rotationAngle(
+			incomingDirecion,
+			outgoingDirecion,
+			surfaceNormal,
+			localNormal,
+			globalTolocal_angle,
+			localToglobal_angle
+			);
 
-	Mueller mR1(R1),mR2(R2);
-	setFresnelMueller(mu,A,B,C,S);
-	mu=mR2*mu;
-	mu=mu*mR1;
+		JonesMat R1=Jones_Rotator(globalTolocal_angle),R2=Jones_Rotator(localToglobal_angle);
 
+		Mueller mR1(R1),mR2(R2);
+		setFresnelMueller(mu,A,B,C,S);
+		mu=mR2*mu;
+		mu=mu*mR1;
+	}
+	else
+		setFresnelMueller(mu,A,B,C,S);
 }
 
 void RayTracing::getReflectionAttenuation(
@@ -629,29 +638,39 @@ void RayTracing::getReflectionAttenuation(
 		);
 
 	double A,B,C,S;
-	A=(Fs+Fp)/2;
-	B=(Fs-Fp)/2;
-	C=cos(phaseS-phaseP)*sqrt(Fs*Fp);
-	S=sin(phaseS-phaseP)*sqrt(Fs*Fp);
+	A=( Fs + Fp )/2;
+	B = 0;
+	C = 0;
+	S = 0;
 
-	double localToglobal_angle;
-	double globalTolocal_angle;
+	if ( Polarised == true )
+	{
+		B=( Fs - Fp )/2;
+		C=cos(phaseS-phaseP)*sqrt(Fs*Fp);
+		S=sin(phaseS-phaseP)*sqrt(Fs*Fp);
 
-	rotationAngle(
-		incomingDirecion,
-		outgoingDirecion,
-		surfaceNormal,
-		localNormal,
-		globalTolocal_angle,
-		localToglobal_angle
-		);
+		double localToglobal_angle;
+		double globalTolocal_angle;
 
-	JonesMat R1=Jones_Rotator(globalTolocal_angle),R2=Jones_Rotator(localToglobal_angle);
+		rotationAngle(
+			incomingDirecion,
+			outgoingDirecion,
+			surfaceNormal,
+			localNormal,
+			globalTolocal_angle,
+			localToglobal_angle
+			);
 
-	Mueller mR1(R1),mR2(R2);
-	setFresnelMueller(mu,A,B,C,S);
-	mu=mR2*mu;
-	mu=mu*mR1;
+		JonesMat R1=Jones_Rotator(globalTolocal_angle),R2=Jones_Rotator(localToglobal_angle);
+
+		Mueller mR1(R1),mR2(R2);
+		setFresnelMueller(mu,A,B,C,S);
+		mu=mR2*mu;
+		mu=mu*mR1;
+	}
+	else
+		setFresnelMueller(mu,A,B,C,S);
+	
 
 }
 

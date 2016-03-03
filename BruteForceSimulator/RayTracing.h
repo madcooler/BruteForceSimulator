@@ -13,6 +13,8 @@
 #define Upwards   1
 #define Downwards 0
 
+#define Polarised false
+
 using namespace std;
 
 class RayTracing

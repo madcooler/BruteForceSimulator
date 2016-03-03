@@ -96,7 +96,8 @@ void BruteForceSimulator::SaveToFile()
 	char DOP[]="DOP.txt";
 	char AOP[]="AOP.txt";
 
-	ofstream Ifs(I),Qfs(Q),Ufs(U),Vfs(V),DOPfs(DOP),AOPfs(AOP);
+	ofstream Ifs(I);
+	ofstream Qfs(Q),Ufs(U),Vfs(V),DOPfs(DOP),AOPfs(AOP);
 
 	for (int i=0;i<91;i++)
 	{
