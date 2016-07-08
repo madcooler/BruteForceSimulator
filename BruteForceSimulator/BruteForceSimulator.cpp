@@ -58,14 +58,14 @@ void BruteForceSimulator::CollectData(Vector direction,StokesVector sv)
 
 		float costheta=CosBetweenVector(d,surfaceNormal);
 		float temp=acosf(costheta);
-		temp=temp*Rad;
+		temp=temp*MATH_DEG_TO_RAD;
 		//thetaDeg=(int)temp;
 		//int temp1=(int)temp;
 		thetaDeg=(int)(temp+0.5);  // >=temp?temp1+1:temp1;
 		thetaDeg=Clamp(thetaDeg,0,90);
 
 
-		float absphi=abs(atanf(y/x))*Rad;
+		float absphi=abs(atanf(y/x))*MATH_DEG_TO_RAD;
 		//int temp2=(int)absphi;
 		phiDeg=(int)(absphi+0.5);//(2*temp2+1)>=2*absphi?temp2+1:temp2;
 
@@ -124,8 +124,8 @@ void BruteForceSimulator::SaveToFile()
 
 void BruteForceSimulator::SetIncidence(float theta, float phi, StokesVector stokes)
 {
-	theta=theta*deg;
-	phi=phi*deg;
+	theta=theta*MATH_RAD_TO_DEG;
+	phi=phi*MATH_RAD_TO_DEG;
 	float sintheta=sin(theta),costheta=cos(theta);
 
 	IncidenceDirection=Vector(sintheta * cosf(phi),sintheta * sinf(phi),-costheta);
