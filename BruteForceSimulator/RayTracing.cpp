@@ -1,3 +1,7 @@
+//  Created by Chi Wang on 04/12/15.
+//  Copyright ? 2015 Chi Wang. All rights reserved.
+//
+
 #include "RayTracing.h"
 
 
@@ -121,12 +125,17 @@ void RayTracing::TraceRay()
 	k_t = K[intersectionLayerNumber];
 
 	Vector SampledLocalNormal;
-	SamplerNormalDirection(lightDirectionStauts,intersectionLayerNumber,SampledLocalNormal);
+	SamplerNormalDirection(
+		lightDirectionStauts,
+		intersectionLayerNumber,
+		SampledLocalNormal);
 
 	double localTheta=acos(abs(Dot(
 		currentIncomingDirection,
 		SampledLocalNormal)));
 	bool doReflection = false;
+
+	double reflection_pdf = 1;
 
 	DoReflectionOrNot(
 		localTheta,
@@ -136,7 +145,8 @@ void RayTracing::TraceRay()
 		k_t,
 		lightDirectionStauts,
 		intersectionLayerNumber,
-		doReflection);
+		doReflection,
+		reflection_pdf );
 
 	Mueller attenuation;
 	if ( doReflection == true)
@@ -149,7 +159,12 @@ void RayTracing::TraceRay()
 			k_t,
 			currentOutgoingDirection,
 			attenuation);
+
 		currentStokes = attenuation * currentStokes ;
+
+		// weight the scattering with pdf
+		// this is important
+		currentStokes = currentStokes / reflection_pdf;
 
 		if(DebugMode)
 			PrintStatus();
@@ -175,7 +190,12 @@ void RayTracing::TraceRay()
 			k_t,
 			currentOutgoingDirection,
 			attenuation);
+
 		currentStokes = attenuation * currentStokes ;
+
+		// weight the scattering with pdf
+		// this is important
+		currentStokes = currentStokes / ( 1 - reflection_pdf );
 
 		if(DebugMode)
 			PrintStatus();
@@ -212,7 +232,8 @@ void RayTracing::DoReflectionOrNot(
 	const double    k_t,
 	const int       lightDirectionStatus,
 	const int       intersectionLayer,
-	      bool    & doReflection)
+	      bool    & doReflection,
+		  double  & reflection_pdf)
 {
 	double Reflectance=0,Transmittance=0;
 	double Ts,Tp,TsTp,Tphase,Tfactor;
@@ -231,7 +252,8 @@ void RayTracing::DoReflectionOrNot(
 		Fp);
 	bool refractAtLastLayer = ( intersectionLayer == NumOfLayer ) && ( lightDirectionStatus == Downwards );
 
-	if (k_t==0 && !refractAtLastLayer)  // next layer is not metallic or opaque AND there is not transimission at the last layer
+	// next layer is not metallic or opaque AND there is not transimission at the last layer
+	if (k_t==0 && !refractAtLastLayer)  
 	{
 		Transmittance = Fresnel_Refraction(
 			localTheta,
@@ -250,15 +272,17 @@ void RayTracing::DoReflectionOrNot(
 	}
 	else Transmittance=0;
 
-	double NomalizedReflectProbility=Reflectance/(Reflectance+Transmittance);
-	double NomalizedTransmitProbility=1-NomalizedReflectProbility;
+	double NomalizedReflectProbility = Reflectance / ( Reflectance + Transmittance );
+	double NomalizedTransmitProbility = 1 - NomalizedReflectProbility;
 
-	double randomNum= rand()/(double)RAND_MAX;
+	double randomNum = rand () / ( double ) RAND_MAX;
 
-	doReflection = ( randomNum < NomalizedTransmitProbility )? false : true;	
+	reflection_pdf = NomalizedReflectProbility;
+
+	doReflection = ( randomNum < NomalizedTransmitProbility ) ? false : true;
 }
 
-
+// not used anymore
 void RayTracing::TraceRayDownwards()
 {
 	if(PrintTraceInfo == true)
@@ -390,6 +414,7 @@ void RayTracing::TraceRayDownwards()
 	}
 }
 
+// not used anymore
 void RayTracing::TraceRayUpwards()
 {
 	if(PrintTraceInfo == true)

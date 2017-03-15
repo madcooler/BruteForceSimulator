@@ -2,9 +2,10 @@
 //  Fresnel.h
 //  MC_Layer
 //
-//  Created by Administrator on 21/01/16.
-//  Copyright © 2016 Administrator. All rights reserved.
+//  Created by Chi Wang on 21/01/16.
+//  Copyright © 2016 Chi Wang. All rights reserved.
 //
+
 #pragma once
 #ifndef Fresnel_h
 #define Fresnel_h

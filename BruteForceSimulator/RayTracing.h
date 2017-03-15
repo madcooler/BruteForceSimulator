@@ -1,3 +1,7 @@
+//  Created by Chi Wang on 04/12/15.
+//  Copyright @ 2015 Chi Wang. All rights reserved.
+//
+
 #pragma once
 #include "Polarization.h"
 #include "Ray.h"
@@ -13,7 +17,7 @@
 #define Upwards   1
 #define Downwards 0
 
-#define Polarised false
+#define Polarised true
 
 using namespace std;
 
@@ -54,6 +58,7 @@ private:
 		Vector  & outgoingDirecion,
 		Mueller & mu
 		);
+
 	void ChooseReflectionOrRefraction(
 		const double    localtheta,
 		const double    n_i,
@@ -63,6 +68,7 @@ private:
 		const int       lightDirectionStatus,
 			  bool    & doReflection
 			  );
+
 	void DoReflectionOrNot(
 		const double    localTheta,
 		const double    n_i,
@@ -71,7 +77,8 @@ private:
 		const double    k_t,
 		const int       lightDirectionStatus,
 		const int       intersectionLayer,
-			  bool    & doReflection
+			  bool    & doReflection,
+			  double  & reflectio_pdf
 		);
 	void setFresnelMueller(Mueller &mu,double A,double B,double C,double S);
 	void TraceRayUpwards();

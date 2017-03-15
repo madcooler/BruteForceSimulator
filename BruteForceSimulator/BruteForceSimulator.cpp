@@ -48,35 +48,35 @@ void BruteForceSimulator::Calculate(void)
 
 void BruteForceSimulator::CollectData(Vector direction,StokesVector sv)
 {
-	Vector d=direction;
-	int thetaDeg=0,phiDeg=0;
+	Vector d = direction;
+	int thetaDeg = 0 , phiDeg = 0;
 
-	float x=d.x,y=d.y,z=d.z;
+	float x = d.x , y = d.y , z = d.z;
 
 	if (z>0)
 	{
 
-		float costheta=CosBetweenVector(d,surfaceNormal);
-		float temp=acosf(costheta);
-		temp=temp*MATH_DEG_TO_RAD;
+		float costheta = CosBetweenVector ( d , surfaceNormal );
+		float temp = acosf ( costheta );
+		temp = temp * MATH_RAD_TO_DEG;
 		//thetaDeg=(int)temp;
 		//int temp1=(int)temp;
-		thetaDeg=(int)(temp+0.5);  // >=temp?temp1+1:temp1;
-		thetaDeg=Clamp(thetaDeg,0,90);
+		thetaDeg = ( int ) ( temp + 0.5 );  // >=temp?temp1+1:temp1;
+		thetaDeg = Clamp ( thetaDeg , 0 , 90 );
 
 
-		float absphi=abs(atanf(y/x))*MATH_DEG_TO_RAD;
+		float absphi = abs ( atanf ( y / x ) )*MATH_RAD_TO_DEG;
 		//int temp2=(int)absphi;
-		phiDeg=(int)(absphi+0.5);//(2*temp2+1)>=2*absphi?temp2+1:temp2;
+		phiDeg = ( int ) ( absphi + 0.5 );//(2*temp2+1)>=2*absphi?temp2+1:temp2;
 
-		if (x>0&&y>=0)
-			phiDeg=phiDeg;
-		if (x>0&&y<=0)
-			phiDeg=360-phiDeg;
-		if (x<0&&y<=0)
-			phiDeg=180+phiDeg;
-		if (x<0&&y>=0)
-			phiDeg=180-phiDeg;
+		if (x > 0 && y >= 0)
+			phiDeg = phiDeg;
+		if (x > 0 && y <= 0)
+			phiDeg = 360 - phiDeg;
+		if (x < 0 && y <= 0)
+			phiDeg = 180 + phiDeg;
+		if (x < 0 && y >= 0)
+			phiDeg = 180 - phiDeg;
 
 		phiDeg=phiDeg%360;
 		phiDeg=Clamp(phiDeg,0,359);
@@ -124,8 +124,8 @@ void BruteForceSimulator::SaveToFile()
 
 void BruteForceSimulator::SetIncidence(float theta, float phi, StokesVector stokes)
 {
-	theta=theta*MATH_RAD_TO_DEG;
-	phi=phi*MATH_RAD_TO_DEG;
+	theta	= theta*MATH_DEG_TO_RAD;
+	phi		= phi*MATH_DEG_TO_RAD;
 	float sintheta=sin(theta),costheta=cos(theta);
 
 	IncidenceDirection=Vector(sintheta * cosf(phi),sintheta * sinf(phi),-costheta);
@@ -147,7 +147,7 @@ void BruteForceSimulator::ReadAnisotropicSettingFile()
 {
 	float incidentAngle,I,Q,U,V;
 
-	ifstream x("settingani.txt");
+	ifstream x("setting.txt");
 	if (!x.is_open())
 	{
 		cout<<"Couldn't find SETTING files"<<endl;

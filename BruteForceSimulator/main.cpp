@@ -2,8 +2,8 @@
 //  main.cpp
 //  MC_Layer
 //
-//  Created by Administrator on 04/12/15.
-//  Copyright © 2015 Administrator. All rights reserved.
+//  Created by Chi Wang on 04/12/15.
+//  Copyright © 2015 Chi Wang. All rights reserved.
 //
 
 
